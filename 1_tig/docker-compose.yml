@@ -1,0 +1,84 @@
+version: "3.8"
+services:
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    ports:
+      - "8083:8083"
+      - "8086:8086"
+      - "8090:8090"
+      - "2003:2003"
+    env_file:
+      - 'env.influxdb'
+    volumes:
+      - /Users/akovalov/Docker/influxdb/data:/var/lib/influxdb
+    restart: unless-stopped
+
+  telegraf:
+    image: telegraf:latest
+    container_name: telegraf
+    links:
+      - influxdb
+      - mongo
+      - elasticsearch
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    env_file:
+      - 'env.grafana'
+    # user: "0"
+    links:
+      - influxdb
+    volumes:
+      - /Users/akovalov/Docker/grafana/data:/var/lib/grafana
+    restart: unless-stopped
+
+  mongo:
+    image : mongo:4
+    container_name: mongodb
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - /Users/akovalov/Docker/mongodb/data:/data/db
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+
+  elasticsearch:
+      image: docker.elastic.co/elasticsearch/elasticsearch:7.13.3
+      container_name: elasticsearch
+      environment:
+          - bootstrap.memory_lock=true
+          - discovery.type=single-node
+          - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+          - cluster.routing.allocation.disk.threshold_enabled=false
+      volumes:
+        - /Users/akovalov/Docker/elasticsearch/data:/usr/share/elasticsearch/data
+      ulimits:
+          memlock:
+              soft: -1
+              hard: -1
+      ports:
+        - '9200:9200'
+      restart: unless-stopped
+
+  testapp:
+      image: docker.io/library/tigtest:0.0.1-SNAPSHOT
+      container_name: testapp
+      links:
+        - mongo
+        - elasticsearch
+      depends_on:
+        - mongo
+        - elasticsearch
+      ports:
+        - '8081:8081'
+      restart: always
