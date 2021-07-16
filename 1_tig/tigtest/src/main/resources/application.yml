@@ -1,0 +1,8 @@
+logging:
+  level:
+    org:
+      elasticsearch:
+        client: DEBUG
+      springframework:
+        data:
+          elasticsearch: DEBUG
