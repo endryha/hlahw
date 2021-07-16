@@ -9,7 +9,7 @@ services:
       - "8090:8090"
       - "2003:2003"
     env_file:
-      - 'env.influxdb'
+      - 'env.influxdb.properties'
     volumes:
       - /Users/akovalov/Docker/influxdb/data:/var/lib/influxdb
     restart: unless-stopped
@@ -32,7 +32,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - 'env.grafana'
+      - 'env.grafana.properties'
     # user: "0"
     links:
       - influxdb
@@ -69,16 +69,3 @@ services:
       ports:
         - '9200:9200'
       restart: unless-stopped
-
-  testapp:
-      image: docker.io/library/tigtest:0.0.1-SNAPSHOT
-      container_name: testapp
-      links:
-        - mongo
-        - elasticsearch
-      depends_on:
-        - mongo
-        - elasticsearch
-      ports:
-        - '8081:8081'
-      restart: always
