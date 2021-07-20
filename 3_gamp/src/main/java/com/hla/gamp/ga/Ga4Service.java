@@ -13,9 +13,12 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
+import java.util.UUID;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -43,10 +46,8 @@ public class Ga4Service implements GoogleAnalyticsService {
     private static final Logger log = LoggerFactory.getLogger(Ga4Service.class);
     private static final int N = 10;
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
-    private static final String EVENT_NAME_1 = "ga4_event_1";
-    private static final String EVENT_NAME_2 = "ga4_event_2";
+    private static final String EVENT_NAME = "ga4_event";
 
     @Value("${ga.measurement_id}")
     private String measurementId;
@@ -57,18 +58,27 @@ public class Ga4Service implements GoogleAnalyticsService {
     @Value("${ga4.url}")
     private String url;
 
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public void sendEvent(String clientId) {
+        int delay = 0;
         for (int i = 0; i < N; i++) {
-            executorService.submit(() -> sendEventInternal(clientId, EVENT_NAME_1));
+            executor.schedule(() -> sendEventInternal(clientId, EVENT_NAME), delay, TimeUnit.MILLISECONDS);
+            delay += DEFAULT_DELAY;
         }
     }
 
     private void sendEventInternal(String clientId, String eventName) {
+        Map<String, String> params = new HashMap<>();
+        params.put("value", UUID.randomUUID().toString());
+        params.put("timestamp", String.valueOf(System.nanoTime()));
+
         GaEvent event = new GaEvent();
         event.setName(eventName);
+        event.setParams(params);
+
         GaEventsPayload payload = new GaEventsPayload();
         payload.setClientId(clientId);
         payload.setTimestampMicros(String.valueOf(System.currentTimeMillis() * 1000));
