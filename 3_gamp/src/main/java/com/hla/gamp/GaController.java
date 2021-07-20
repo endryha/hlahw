@@ -23,22 +23,14 @@ public class GaController {
 
     @GetMapping("/ga4")
     public String ga4(@CookieValue(value = "_ga", required = false) String gaCookie, @RequestParam(value = "client_id", required = false) String clientId) {
-        if (!StringUtils.hasText(clientId)) {
-            clientId = extractClientId(gaCookie);
-        }
+        clientId = getClientId(gaCookie, clientId);
         ga4Service.sendEvent(clientId);
         return "index.html";
     }
 
     @GetMapping("/ua")
     public String ua(@CookieValue(value = "_ga", required = false) String gaCookie, @RequestParam(value = "client_id", required = false) String clientId) {
-        if (!StringUtils.hasText(clientId)) {
-            clientId = extractClientId(gaCookie);
-        }
-        if (!StringUtils.hasText(clientId)) {
-            clientId = UUID.randomUUID().toString();
-        }
-        uaService.sendEvent(clientId);
+        uaService.sendEvent(getClientId(gaCookie, clientId));
         return "index.html";
     }
 
@@ -49,5 +41,15 @@ public class GaController {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private String getClientId(String gaCookie, String clientId) {
+        if (!StringUtils.hasText(clientId)) {
+            clientId = extractClientId(gaCookie);
+        }
+        if (!StringUtils.hasText(clientId)) {
+            clientId = UUID.randomUUID().toString();
+        }
+        return clientId;
     }
 }
