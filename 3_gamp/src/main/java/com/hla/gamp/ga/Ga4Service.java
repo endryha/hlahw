@@ -1,5 +1,6 @@
 package com.hla.gamp.ga;
 
+import com.hla.gamp.RandomUtils;
 import com.hla.gamp.dto.GaEvent;
 import com.hla.gamp.dto.GaEventsPayload;
 import org.slf4j.Logger;
@@ -65,7 +66,7 @@ public class Ga4Service implements GoogleAnalyticsService {
     public void sendEvent(String clientId) {
         int delay = 0;
         for (int i = 0; i < N; i++) {
-            executor.schedule(() -> sendEventInternal(clientId, EVENT_NAME), delay, TimeUnit.MILLISECONDS);
+            executor.schedule(() -> sendEventInternal(clientId, getEventName()), delay, TimeUnit.MILLISECONDS);
             delay += DEFAULT_DELAY;
         }
     }
@@ -94,5 +95,9 @@ public class Ga4Service implements GoogleAnalyticsService {
 
         ResponseEntity<Map> responseEntity = restTemplate.postForEntity(uri, entity, Map.class);
         log.info(responseEntity.toString());
+    }
+
+    private static String getEventName() {
+        return EVENT_NAME + "_" + RandomUtils.rand(1, 10);
     }
 }

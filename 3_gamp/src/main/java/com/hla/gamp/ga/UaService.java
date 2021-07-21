@@ -1,5 +1,6 @@
 package com.hla.gamp.ga;
 
+import com.hla.gamp.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,14 +51,15 @@ public class UaService implements GoogleAnalyticsService {
     }
 
     private String buildUri(String clientId) throws UnsupportedEncodingException {
+        int rand = RandomUtils.rand(1, 10);
         return UriComponentsBuilder.fromHttpUrl(this.url)
                 .queryParam("v", "1")
                 .queryParam("tid", trackingId)
                 .queryParam("cid", clientId)
                 .queryParam("t", "event")
                 .queryParam("ec", "ua_custom_category")
-                .queryParam("ea", "ua_background_action")
-                .queryParam("el", "UA Background Action")
+                .queryParam("ea", "ua_background_action_" + rand)
+                .queryParam("el", "UA Background Action " + rand)
                 .queryParam("ev", System.currentTimeMillis())
                 .build().toUriString();
     }
