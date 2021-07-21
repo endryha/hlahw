@@ -15,19 +15,19 @@ public class TransactionService {
         this.repo = repo;
     }
 
+    public List<Transaction> getAllGreaterThenThreshold(long threshold) {
+        return repo.findAllByValueIsGreaterThan(threshold);
+    }
+
+    public Transaction getByUuid(String uuid) {
+        return repo.findFirstByUuid(uuid);
+    }
+
     public List<Transaction> listAll() {
         return repo.findAll();
     }
 
     public void save(Transaction transaction) {
         repo.save(transaction);
-    }
-
-    public Transaction get(Long id) {
-        return repo.findById(id).get();
-    }
-
-    public void delete(Long id) {
-        repo.deleteById(id);
     }
 }
