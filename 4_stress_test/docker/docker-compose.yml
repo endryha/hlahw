@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    ports:
+      - "8083:8083"
+      - "8086:8086"
+      - "8090:8090"
+      - "2003:2003"
+    env_file:
+      - 'env.influxdb.properties'
+    volumes:
+      - /Users/akovalov/Docker/influxdb/data:/var/lib/influxdb
+    restart: unless-stopped
+
+  telegraf:
+    image: telegraf:latest
+    container_name: telegraf
+    links:
+      - db
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    env_file:
+      - 'env.grafana.properties'
+    links:
+      - influxdb
+    volumes:
+      - /Users/akovalov/Docker/grafana/data:/var/lib/grafana
+    restart: unless-stopped
+
+  db:
+    image: mysql
+    container_name: db-container
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd
+      MYSQL_USER: hla
+      MYSQL_PASSWORD: P@ssw0rd
+      MYSQL_DATABASE: hla
+    volumes:
+      - /Users/akovalov/Docker/mysql/data:/var/lib/mysql
+      - "../sql/schema.sql:/docker-entrypoint-initdb.d/1.sql"
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=P@ssw0rd --execute \"SHOW DATABASES;\""
+      interval: 2s
+      timeout: 20s
+      retries: 10
+    restart: always
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
+
+  stressapp:
+    image: docker.io/library/stress:0.0.1-SNAPSHOT
+    container_name: stressapp
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/hla
+    links:
+      - db
+    depends_on:
+      - db
+    ports:
+      - '8082:8082'
+    restart: always
