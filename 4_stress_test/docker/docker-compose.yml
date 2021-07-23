@@ -85,8 +85,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/hla
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
-      - CACHE_TRANSACTION_ON=false
-      - CACHE_TRANSACTION_PROBABILISTIC-EXPIRATION=false
+      - CACHE_TRANSACTION_ON=true
+      - CACHE_TRANSACTION_PROBABILISTIC-EXPIRATION=true
     links:
       - db
       - redis
