@@ -3,6 +3,7 @@ read_urls_file=./input/read_urls.txt
 
 write_stats_file=./output/write_stats.txt
 read_stats_file=./output/read_stats.txt
+top10_stats_file=./output/top10_stats.txt
 
 concurrency=$1
 duration=$2
@@ -17,16 +18,25 @@ echo "Generating url files"
 echo "Start write stress test"
 sleep $pause
 
-siege -c"$concurrency" -t"$duration" -f $write_urls_file 2>$write_stats_file
+siege -c"$concurrency" -t"$duration" -f $write_urls_file 2>$write_stats_file &
 
 sleep $pause
 echo "Start read stress test"
 sleep $pause
 
-siege -c"$concurrency" -t"$duration" -f $read_urls_file 2>$read_stats_file
+siege -c"$concurrency" -t"$duration" -f $read_urls_file 2>$read_stats_file &
+
+sleep $pause
+echo "Start top 10 stress test"
+sleep $pause
+
+siege -c"$concurrency" -t"$duration" http://localhost:8082/top10 2>$top10_stats_file &
 
 echo "Write Stats"
 cat $write_stats_file
 
 echo "Read Stats"
 cat $read_stats_file
+
+echo "Top 10 Stats"
+cat top10_stats_file

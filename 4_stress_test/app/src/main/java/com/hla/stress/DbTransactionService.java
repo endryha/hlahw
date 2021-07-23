@@ -1,5 +1,8 @@
 package com.hla.stress;
 
+import com.hla.stress.transaction.Transaction;
+import com.hla.stress.transaction.TransactionRepository;
+import com.hla.stress.transaction.TransactionService;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -7,27 +10,26 @@ import java.util.List;
 
 @Service
 @Transactional
-public class TransactionService {
+public class DbTransactionService implements TransactionService {
 
     private final TransactionRepository repo;
 
-    public TransactionService(TransactionRepository repo) {
+    public DbTransactionService(TransactionRepository repo) {
         this.repo = repo;
     }
 
-    public List<Transaction> getAllGreaterThenThreshold(long threshold) {
-        return repo.findAllByValueIsGreaterThan(threshold);
-    }
-
+    @Override
     public Transaction getByUuid(String uuid) {
         return repo.findFirstByUuid(uuid);
     }
 
-    public List<Transaction> listAll() {
-        return repo.findAll();
-    }
-
+    @Override
     public void save(Transaction transaction) {
         repo.save(transaction);
+    }
+
+    @Override
+    public List<Transaction> getTop10() {
+        return repo.findTop10ByOrderByValueDesc();
     }
 }

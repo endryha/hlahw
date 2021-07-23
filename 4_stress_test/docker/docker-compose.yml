@@ -61,19 +61,35 @@ services:
 
   adminer:
     image: adminer
+    container_name: adminer
     restart: always
     ports:
       - 8081:8080
+
+  redis:
+    image: bitnami/redis
+    container_name: redis
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      #- REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - '6379:6379'
+    volumes:
+      - '/Users/akovalov/Docker/redis/data:/bitnami/redis/data'
+      - ./redis.conf:/opt/bitnami/redis/mounted-etc/redis.conf
 
   stressapp:
     image: docker.io/library/stress:0.0.1-SNAPSHOT
     container_name: stressapp
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/hla
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+      - CACHE_TRANSACTION_ON=false
+      - CACHE_TRANSACTION_PROBABILISTIC-EXPIRATION=false
     links:
       - db
-    depends_on:
-      - db
+      - redis
     ports:
-      - '8082:8082'
+      - '8082:8888'
     restart: always

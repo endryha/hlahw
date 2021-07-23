@@ -1,12 +1,11 @@
-package com.hla.stress;
+package com.hla.stress.transaction;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-
-    List<Transaction> findAllByValueIsGreaterThan(long threshold);
-
     Transaction findFirstByUuid(String uuid);
+
+    List<Transaction> findTop10ByOrderByValueDesc();
 }

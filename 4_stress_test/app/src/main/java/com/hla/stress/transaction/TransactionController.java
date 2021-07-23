@@ -1,4 +1,4 @@
-package com.hla.stress;
+package com.hla.stress.transaction;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,9 +28,9 @@ public class TransactionController {
         return transactionService.getByUuid(uuid);
     }
 
-    @GetMapping(value = "/read")
-    public List<Transaction> read(@RequestParam("threshold") Long threshold) {
-        return transactionService.getAllGreaterThenThreshold(threshold);
+    @GetMapping(value = "/top10")
+    public List<Transaction> top10() {
+        return transactionService.getTop10();
     }
 
     private static Transaction create(String uuid, Long value) {
