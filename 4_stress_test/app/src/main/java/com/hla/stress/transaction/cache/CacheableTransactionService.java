@@ -32,7 +32,7 @@ public class CacheableTransactionService implements TransactionService {
 
     private final DbTransactionService transactionService;
 
-    private static final int BETA = 1;
+    private static final double BETA = 1.0;
 
     @Value("${cache.transaction.ttl-sec}")
     private int defaultTtl;
@@ -62,7 +62,7 @@ public class CacheableTransactionService implements TransactionService {
     }
 
     @Override
-    public List<Transaction> getTop10() {
+    public synchronized List<Transaction> getTop10() {
         if (!isCacheEnabled) {
             return transactionService.getTop10();
         }
@@ -73,7 +73,7 @@ public class CacheableTransactionService implements TransactionService {
             return refreshTop10Cache();
         }
 
-        if (isCacheEnabled && isProbabilisticExpirationEnabled) {
+        if (isCacheEnabled && isProbabilisticExpirationEnabled && cachedValue.getTtl() < defaultTtl) {
             long delta = cachedValue.getValue().getTimeToFetch();
             long time = System.currentTimeMillis();
             long expiry = cachedValue.getExpiry();
@@ -145,26 +145,4 @@ public class CacheableTransactionService implements TransactionService {
             return expiry;
         }
     }
-/*
-    public static void main(String[] args) {
-        //        long delta = cachedValue.getValue().getTimeToFetch();
-        // time() −delta * beta * log(rand(0, 1)) ≥expiry
-
-
-        for (int i = 0; i < 100; i++) {
-            int beta = 1;
-            long delta = TimeUnit.SECONDS.toMillis(30);
-            long time = System.currentTimeMillis();
-            long expiry = time + TimeUnit.MINUTES.toMillis(1);
-            double random = (delta * beta * Math.log(Math.random()));
-            long probabilisticExpiry = (long) (time - random);
-
-            System.out.println("Time: " + time);
-            System.out.println("Expiry: " + expiry);
-            System.out.println("Random: " + random);
-            System.out.println("Probabilistic expiry: " + probabilisticExpiry);
-            System.out.println("Expired: " + (probabilisticExpiry >= expiry));
-            System.out.println();
-        }
-    }*/
 }
