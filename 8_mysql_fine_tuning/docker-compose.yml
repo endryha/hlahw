@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  db:
+  mysql:
     image: mysql
-    container_name: db-container
+    container_name: mysql
     command: --default-authentication-plugin=mysql_native_password
     ports:
       - '3306:3306'
@@ -15,6 +15,7 @@ services:
     volumes:
       - /Users/Shared/Docker/mysql/data:/var/lib/mysql
       - "./sql/schema.sql:/docker-entrypoint-initdb.d/1.sql"
+      - ./conf/config.cnf:/etc/mysql/conf.d/config.cnf
     healthcheck:
       test: "/usr/bin/mysql --user=root --password=P@ssw0rd --execute \"SHOW DATABASES;\""
       interval: 2s
@@ -22,9 +23,10 @@ services:
       retries: 10
     restart: always
 
-  adminer:
+  mysql-adminer:
     image: adminer
-    container_name: adminer
-    restart: always
+    container_name: mysql-adminer
+    links:
+      - mysql:db
     ports:
       - 8081:8080
