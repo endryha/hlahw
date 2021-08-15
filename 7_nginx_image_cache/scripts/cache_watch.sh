@@ -1,2 +1,2 @@
 #!/bin/bash
-watch -n 1 'tree --prune -t ../cache'
+watch -n 1 'tree --prune -D -t ../cache'
