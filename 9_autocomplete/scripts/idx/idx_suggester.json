@@ -1,0 +1,26 @@
+{
+  "settings": {
+    "number_of_shards": 1
+  },
+  "mappings": {
+    "properties": {
+      "author": {
+        "type": "text",
+        "fields": {
+          "suggest": {
+            "type":  "completion"
+          }
+        }
+      },
+      "quote": {
+        "type": "completion",
+        "fields": {
+          "suggest": {
+            "type":  "completion",
+            "analyzer": "english"
+          }
+        }
+      }
+    }
+  }
+}

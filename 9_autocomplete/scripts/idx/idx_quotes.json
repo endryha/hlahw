@@ -1,0 +1,78 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "analysis": {
+      "analyzer": {
+        "autocomplete": {
+          "tokenizer": "autocomplete",
+          "filter": [
+            "lowercase"
+          ]
+        },
+        "autocomplete_search": {
+          "tokenizer": "lowercase",
+          "filter": [
+            "autocomplete_char_trunc"
+          ]
+        }
+      },
+      "tokenizer": {
+        "autocomplete": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 10,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      },
+      "filter": {
+        "autocomplete_char_trunc": {
+          "type": "truncate",
+          "length": 10
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "author": {
+        "type": "text",
+        "fields": {
+          "ngram": {
+            "type": "text",
+            "analyzer": "autocomplete",
+            "search_analyzer": "autocomplete_search"
+          },
+          "sayt": {
+            "type": "search_as_you_type",
+            "max_shingle_size": 3,
+            "search_analyzer": "standard"
+          },
+          "suggest": {
+            "type": "completion"
+          }
+        }
+      },
+      "quote": {
+        "type": "text",
+        "fields": {
+          "ngram": {
+            "type": "text",
+            "analyzer": "autocomplete",
+            "search_analyzer": "autocomplete_search"
+          },
+          "sayt": {
+            "type": "search_as_you_type",
+            "max_shingle_size": 3,
+            "search_analyzer": "standard"
+          },
+          "suggest": {
+            "type": "completion"
+          }
+        }
+      }
+    }
+  }
+}
