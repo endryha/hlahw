@@ -14,6 +14,16 @@
           "filter": [
             "autocomplete_char_trunc"
           ]
+        },
+        "trigram": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase","shingle"]
+        },
+        "reverse": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase","reverse"]
         }
       },
       "tokenizer": {
@@ -31,6 +41,11 @@
         "autocomplete_char_trunc": {
           "type": "truncate",
           "length": 10
+        },
+        "shingle": {
+          "type": "shingle",
+          "min_shingle_size": 2,
+          "max_shingle_size": 3
         }
       }
     }
