@@ -1,0 +1,73 @@
+version: '3'
+
+services:
+  master:
+    image: bitnami/redis:6.2
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - ./conf/redis-master.conf:/opt/bitnami/redis/mounted-etc/redis.conf
+    networks:
+      - redis-net
+
+  slave-a:
+    image: bitnami/redis:6.2
+    ports:
+      - "6380:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - ./conf/redis-replica.conf:/opt/bitnami/redis/mounted-etc/redis.conf
+    networks:
+      - redis-net
+
+  slave-b:
+    image: bitnami/redis:6.2
+    ports:
+      - "6381:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - ./conf/redis-replica.conf:/opt/bitnami/redis/mounted-etc/redis.conf
+    networks:
+      - redis-net
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    hostname: redis-commander
+    environment:
+      - REDIS_HOSTS=master:master,slave-a:slave-a,slave-b:slave-b
+    ports:
+      - "8081:8081"
+    depends_on:
+      - master
+      - slave-a
+      - slave-b
+    networks:
+      - redis-net
+  #    restart: always
+
+  redis-client-app:
+    image: docker.io/library/redis-master-replica:0.0.1-SNAPSHOT
+    container_name: redis-client-app
+    environment:
+      - SPRING_REDIS_HOST=master
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_REPLICAS=slave-a:6380,slave-b:6381
+    ports:
+      - "8881:8801"
+    depends_on:
+      - master
+      - slave-a
+      - slave-b
+    networks:
+      - redis-net
+#    restart: always
+
+
+networks:
+  redis-net:
+    driver: bridge

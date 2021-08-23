@@ -1,0 +1,74 @@
+version: '2'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  redis:
+    container_name: master-sentinel
+    image: 'bitnami/redis:6.2'
+    environment:
+      - REDIS_REPLICATION_MODE=master
+      - REDIS_PASSWORD=str0ng_passw0rd
+    ports:
+      - '6379'
+    networks:
+      - app-tier
+
+  redis-slave-1:
+    container_name: slave-1-sentinel
+    image: 'bitnami/redis:6.2'
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis
+      - REDIS_MASTER_PASSWORD=str0ng_passw0rd
+      - REDIS_PASSWORD=str0ng_passw0rd
+    ports:
+      - '6379'
+    depends_on:
+      - redis
+    networks:
+      - app-tier
+
+  redis-slave-2:
+    container_name: slave-2-sentinel
+    image: 'bitnami/redis:6.2'
+    environment:
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis
+      - REDIS_MASTER_PASSWORD=str0ng_passw0rd
+      - REDIS_PASSWORD=str0ng_passw0rd
+    ports:
+      - '6379'
+    depends_on:
+      - redis
+    networks:
+      - app-tier
+
+  redis-sentinel:
+    container_name: redis-sentinel
+    image: 'bitnami/redis-sentinel:6.2'
+    environment:
+      - REDIS_MASTER_PASSWORD=str0ng_passw0rd
+    depends_on:
+      - redis
+      - redis-slave-1
+      - redis-slave-2
+    ports:
+      - '26379-26381:26379'
+    networks:
+      - app-tier
+
+  redis-sentinel-client-app:
+    image: docker.io/library/redis-sentinel:0.0.1-SNAPSHOT
+    container_name: redis-sentinel-client-app
+    environment:
+      - SPRING_REDIS_SENTINEL_NODES=redis-sentinel:26379
+    depends_on:
+      - redis-sentinel
+    networks:
+      - app-tier
+    ports:
+      - '8082:8082'
+    restart: always
