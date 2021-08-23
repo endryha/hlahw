@@ -1,0 +1,52 @@
+version: "3"
+
+services:
+  redis-master:
+    image: redis:alpine
+    command: redis-server --include /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./conf/redis-master.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+
+  redis-replica-a:
+    image: redis:alpine
+    command: redis-server --include /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./conf/redis-replica.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "7001:6379"
+
+  redis-replica-b:
+    image: redis:alpine
+    command: redis-server --include /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./conf/redis-replica.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "7002:6379"
+
+  redis-app:
+    image: docker.io/library/redis-master-replica:0.0.1-SNAPSHOT
+    environment:
+      - SPRING_REDIS_HOST=redis-master
+      - SPRING_REDIS_PORT=6379
+      - SPRING_REDIS_REPLICAS=redis-replica-a:6379,redis-replica-b:6379
+    ports:
+      - "9080:8080"
+    depends_on:
+      - redis-master
+      - redis-replica-a
+      - redis-replica-b
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    hostname: redis-commander
+    environment:
+      - REDIS_HOSTS=redis-master:redis-master,redis-replica-a:redis-replica-a,redis-replica-b:redis-replica-b
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis-master
+      - redis-replica-a
+      - redis-replica-b

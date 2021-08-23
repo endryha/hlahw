@@ -1,7 +1,5 @@
-package com.hla.redis.masterreplica;
+package com.endryha.redis;
 
-import com.hla.redis.shared.KeyValueDto;
-import com.hla.redis.shared.RedisService;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,24 +10,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api")
 public class ApiController {
-    private final RedisService redisService;
+    private final StringRedisTemplate redisTemplate;
 
     public ApiController(StringRedisTemplate redisTemplate) {
-        this.redisService = new RedisService(redisTemplate);
+        this.redisTemplate = redisTemplate;
     }
 
-    @PostMapping("/write")
-    public ResponseEntity<String> write(@RequestBody KeyValueDto data) {
-        redisService.write(data);
+
+    @PostMapping("/set")
+    public ResponseEntity<String> write(@RequestBody Map data) {
+        String key = String.valueOf(data.get("key"));
+        String value = String.valueOf(data.get("value"));
+        redisTemplate.opsForValue().set(key, value);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("/read")
+    @GetMapping("/get")
     public ResponseEntity<String> get(@RequestParam("key") String key) {
-        String value = redisService.get(key);
+        String value = redisTemplate.opsForValue().get(key);
         return ResponseEntity.ok(value);
     }
 }

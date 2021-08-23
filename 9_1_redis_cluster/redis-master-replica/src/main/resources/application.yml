@@ -1,8 +1,5 @@
 spring:
   redis:
-    host: localhost
     port: 6379
-    replicas: localhost:7000,localhost:7001
-
-server:
-  port: 8801
+    host: localhost
+    replicas: localhost:7001

@@ -1,7 +1,6 @@
 package com.hla.redis.sentinel;
 
 import com.hla.redis.shared.KeyValueDto;
-import com.hla.redis.shared.RedisService;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

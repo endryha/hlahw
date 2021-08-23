@@ -8,7 +8,7 @@
         <version>2.5.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.hla.redis</groupId>
+    <groupId>com.endryha.redis</groupId>
     <artifactId>redis-master-replica</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>redis-master-replica</name>
@@ -17,26 +17,13 @@
         <java.version>1.8</java.version>
     </properties>
     <dependencies>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-ui</artifactId>
-            <version>1.5.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.hla.redis.shared</groupId>
-            <artifactId>redis-shared</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
         <dependency>
