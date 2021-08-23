@@ -4,6 +4,3 @@ spring:
     sentinel:
       master: mymaster
       nodes: localhost:26379
-
-server:
-  port: 8802

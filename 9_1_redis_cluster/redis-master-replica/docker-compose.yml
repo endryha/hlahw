@@ -7,7 +7,7 @@ services:
     volumes:
       - ./conf/redis-master.conf:/usr/local/etc/redis/redis.conf
     ports:
-      - "6379:6379"
+      - "6379"
 
   redis-replica-a:
     image: redis:alpine
@@ -15,7 +15,7 @@ services:
     volumes:
       - ./conf/redis-replica.conf:/usr/local/etc/redis/redis.conf
     ports:
-      - "7001:6379"
+      - "6379"
 
   redis-replica-b:
     image: redis:alpine
@@ -23,9 +23,9 @@ services:
     volumes:
       - ./conf/redis-replica.conf:/usr/local/etc/redis/redis.conf
     ports:
-      - "7002:6379"
+      - "6379"
 
-  redis-app:
+  app:
     image: docker.io/library/redis-master-replica:0.0.1-SNAPSHOT
     environment:
       - SPRING_REDIS_HOST=redis-master
