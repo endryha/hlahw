@@ -31,6 +31,7 @@ services:
       - SPRING_REDIS_HOST=redis-master
       - SPRING_REDIS_PORT=6379
       - SPRING_REDIS_REPLICAS=redis-replica-a:6379,redis-replica-b:6379
+      - _JAVA_OPTIONS=-Dlogging.level.io.lettuce=DEBUG
     ports:
       - "9080:8080"
     depends_on:

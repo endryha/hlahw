@@ -1,0 +1,72 @@
+version: "3"
+
+services:
+  redis-cluster_1:
+    image: bitnami/redis-cluster
+    ports:
+      - "6379"
+    env_file:
+      - env.redis.properties
+
+  redis-cluster_2:
+    image: bitnami/redis-cluster
+    ports:
+      - "6379"
+    env_file:
+      - env.redis.properties
+
+  redis-cluster_3:
+    image: bitnami/redis-cluster
+    ports:
+      - "6379"
+    env_file:
+      - env.redis.properties
+
+  redis-cluster_4:
+    image: bitnami/redis-cluster
+    ports:
+      - "6379"
+    env_file:
+      - env.redis.properties
+
+  redis-cluster_5:
+    image: bitnami/redis-cluster
+    ports:
+      - "6379"
+    env_file:
+      - env.redis.properties
+
+  redis-cluster_6:
+    image: bitnami/redis-cluster
+    ports:
+      - "6379"
+    env_file:
+      - env.redis.properties
+
+  redis-cluster-creator:
+    image: bitnami/redis-cluster
+    depends_on:
+      - redis-cluster_1
+      - redis-cluster_2
+      - redis-cluster_3
+      - redis-cluster_4
+      - redis-cluster_5
+      - redis-cluster_6
+    env_file:
+      - env.redis.properties
+    environment:
+      - REDISCLI_AUTH=P@ssw0rd
+      - REDIS_CLUSTER_REPLICAS=1
+      - REDIS_NODES=redis-cluster_1 redis-cluster_2 redis-cluster_3 redis-cluster_4 redis-cluster_5 redis-cluster_6
+      - REDIS_CLUSTER_CREATOR=yes
+
+  app:
+    image: docker.io/library/redis-cluster:0.0.1-SNAPSHOT
+    environment:
+      - SPRING_REDIS_PASSWORD=P@ssw0rd
+      - SPRING_REDIS_CLUSTER_NODES=redis-cluster_1:6379,redis-cluster_2:6379,redis-cluster_3:6379,redis-cluster_4:6379,redis-cluster_5:6379,redis-cluster_6:6379
+      - _JAVA_OPTIONS=-Dlogging.level.io.lettuce=DEBUG
+    ports:
+      - "9083:8080"
+    depends_on:
+      - redis-cluster-creator

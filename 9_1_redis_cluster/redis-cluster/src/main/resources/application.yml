@@ -1,0 +1,10 @@
+spring:
+  redis:
+    lettuce:
+      cluster:
+        refresh:
+          adaptive: on
+          period: 15
+    cluster:
+      max-redirects: 5
+      nodes: redis-cluster_1:6379,redis-cluster_2:6379,redis-cluster_3:6379,redis-cluster_4:6379,redis-cluster_5:6379,redis-cluster_6:6379

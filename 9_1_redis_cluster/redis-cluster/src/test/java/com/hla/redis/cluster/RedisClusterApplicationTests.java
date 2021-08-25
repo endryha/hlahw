@@ -1,10 +1,10 @@
-package com.endryha.redis;
+package com.hla.redis.cluster;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class RedisSampleApplicationTests {
+class RedisClusterApplicationTests {
 
     @Test
     void contextLoads() {

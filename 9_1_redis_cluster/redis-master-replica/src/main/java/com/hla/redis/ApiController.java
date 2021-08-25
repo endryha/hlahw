@@ -1,4 +1,4 @@
-package com.endryha.redis;
+package com.hla.redis;
 
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;

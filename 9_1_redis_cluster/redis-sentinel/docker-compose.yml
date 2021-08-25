@@ -6,7 +6,7 @@ services:
     container_name: redis-master
     environment:
       - REDIS_REPLICATION_MODE=master
-      - REDIS_PASSWORD=str0ng_passw0rd
+      - REDIS_PASSWORD=P@ssw0rd
     ports:
       - "6379"
 
@@ -15,8 +15,8 @@ services:
     environment:
       - REDIS_REPLICATION_MODE=replica
       - REDIS_MASTER_HOST=redis-master
-      - REDIS_MASTER_PASSWORD=str0ng_passw0rd
-      - REDIS_PASSWORD=str0ng_passw0rd
+      - REDIS_MASTER_PASSWORD=P@ssw0rd
+      - REDIS_PASSWORD=P@ssw0rd
     ports:
       - "6379"
     depends_on:
@@ -27,7 +27,7 @@ services:
     environment:
       - REDIS_MASTER_SET=mymaster
       - REDIS_MASTER_HOST=redis-master
-      - REDIS_MASTER_PASSWORD=str0ng_passw0rd
+      - REDIS_MASTER_PASSWORD=P@ssw0rd
       - REDIS_SENTINEL_DOWN_AFTER_MILLISECONDS=10000
     depends_on:
       - redis-master
@@ -40,13 +40,13 @@ services:
     environment:
       - SPRING_REDIS_SENTINEL_MASTER=mymaster
       - SPRING_REDIS_SENTINEL_NODES=redis-sentinel:26379
-      - SPRING_REDIS_SENTINEL_PASSWORD=str0ng_passw0rd
-      - SPRING_REDIS_PASSWORD=str0ng_passw0rd
+      - SPRING_REDIS_SENTINEL_PASSWORD=P@ssw0rd
+      - SPRING_REDIS_PASSWORD=P@ssw0rd
       - SPRING_REDIS_TIMEOUT=PT1S
       - SPRING_REDIS_CONNECT_TIMEOUT=PT0.5S
       - LOGGING_LEVEL_IO_LETTUCE=INFO
       - _JAVA_OPTIONS=-Dlogging.level.io.lettuce=DEBUG
     ports:
-      - "9081:8080"
+      - "9082:8080"
     depends_on:
       - redis-sentinel
