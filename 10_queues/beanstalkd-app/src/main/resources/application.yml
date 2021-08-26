@@ -1,6 +1,6 @@
 beanstalkd:
   host: localhost
-  port: 11301
+  port: 11300
   connectionTimeout: 2000
   readTimeout: 3000
   tube: hla-tube

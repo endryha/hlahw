@@ -1,9 +1,9 @@
 package com.hla.beanstalkd;
 
+import com.dinstone.beanstalkc.BeanstalkClient;
 import com.dinstone.beanstalkc.BeanstalkClientFactory;
 import com.dinstone.beanstalkc.Job;
 import com.dinstone.beanstalkc.JobConsumer;
-import com.dinstone.beanstalkc.internal.DefaultBeanstalkClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
@@ -22,11 +22,11 @@ public class JobListener implements SmartLifecycle {
     private static final Logger log = LoggerFactory.getLogger(JobListener.class);
 
     private static final int logDelay = 1000;
-    private static final int slowLogThreshold = 1000;
+    private static final int slowLogThreshold = 500;
 
     private final BeanstalkClientFactory clientFactory;
     private final BeanstalkdProperties properties;
-    private final DefaultBeanstalkClient client;
+    private final BeanstalkClient client;
 
     private final ExecutorService executorService;
 
@@ -35,7 +35,7 @@ public class JobListener implements SmartLifecycle {
     private final AtomicLong lastLogTime = new AtomicLong(-1);
     private final LongAdder counter = new LongAdder();
 
-    public JobListener(BeanstalkdProperties properties, BeanstalkClientFactory clientFactory, DefaultBeanstalkClient client) {
+    public JobListener(BeanstalkdProperties properties, BeanstalkClientFactory clientFactory, BeanstalkClient client) {
         this.clientFactory = clientFactory;
         this.properties = properties;
         executorService = Executors.newFixedThreadPool(properties.getConsumers());
@@ -57,21 +57,25 @@ public class JobListener implements SmartLifecycle {
         log.info("Start consumer {} in thread {}", jobConsumer.hashCode(), Thread.currentThread().getName());
         while (isRunning() && !Thread.interrupted()) {
             long start = System.currentTimeMillis();
-            Job job = jobConsumer.reserveJob(0);
+            Job job = jobConsumer.reserveJob(properties.getConnectionTimeout());
             if (job != null) {
                 jobConsumer.deleteJob(job.getId());
                 counter.increment();
                 long now = System.currentTimeMillis();
                 long execTime = now - start;
                 if (execTime >= slowLogThreshold || now - lastLogTime.get() >= logDelay) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Stats {}", client.stats());
-                        log.debug("Stats {} {}", properties.getTube(), client.statsTube(properties.getTube()));
-                    }
-                    log.info("Last processed job: {}, last exec time: {}, total processed: {}", job.getId(), execTime, counter.longValue());
                     lastLogTime.set(now);
+                    logStats();
+                    log.info("Last processed job: {}, last exec time: {}, total processed: {}", job.getId(), execTime, counter.longValue());
                 }
             }
+        }
+    }
+
+    private void logStats() {
+        if (log.isDebugEnabled()) {
+            log.debug("Stats {}", client.stats());
+            log.debug("Stats {} {}", properties.getTube(), client.statsTube(properties.getTube()));
         }
     }
 

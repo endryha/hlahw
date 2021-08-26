@@ -1,11 +1,14 @@
 package com.hla.beanstalkd;
 
+import com.dinstone.beanstalkc.BeanstalkClient;
 import com.dinstone.beanstalkc.BeanstalkClientFactory;
 import com.dinstone.beanstalkc.Configuration;
-import com.dinstone.beanstalkc.internal.DefaultBeanstalkClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 @SpringBootApplication
@@ -28,10 +31,10 @@ public class BeanstalkdAppApplication {
     }
 
     @Bean(destroyMethod = "close")
-    DefaultBeanstalkClient beanstalkClient(Configuration config) {
-        DefaultBeanstalkClient defaultBeanstalkClient = new DefaultBeanstalkClient(config);
-        defaultBeanstalkClient.useTube(properties.getTube());
-        return defaultBeanstalkClient;
+    BeanstalkClient beanstalkClient(BeanstalkClientFactory clientFactory) {
+        BeanstalkClient client = clientFactory.createBeanstalkClient();
+        client.useTube(properties.getTube());
+        return client;
     }
 
     @Bean

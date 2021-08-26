@@ -1,0 +1,7 @@
+server:
+  port: 8081
+
+spring:
+  redis:
+    port: 6380
+    client-type: lettuce

@@ -1,6 +1,6 @@
 package com.hla.beanstalkd;
 
-import com.dinstone.beanstalkc.internal.DefaultBeanstalkClient;
+import com.dinstone.beanstalkc.BeanstalkClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,9 +13,9 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping("/api")
 public class IngestController {
 
-    private final DefaultBeanstalkClient client;
+    private final BeanstalkClient client;
 
-    public IngestController(DefaultBeanstalkClient client) {
+    public IngestController(BeanstalkClient client) {
         this.client = client;
     }
 
