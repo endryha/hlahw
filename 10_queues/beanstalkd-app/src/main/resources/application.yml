@@ -1,0 +1,15 @@
+beanstalkd:
+  host: localhost
+  port: 11301
+  connectionTimeout: 2000
+  readTimeout: 3000
+  tube: hla-tube
+  consumers: 2
+
+logging:
+  level:
+    com:
+      hla:
+        beanstalkd: INFO
+      dinstone:
+        beanstalkc: INFO

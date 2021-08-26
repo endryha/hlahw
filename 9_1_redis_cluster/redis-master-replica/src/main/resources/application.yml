@@ -3,3 +3,5 @@ spring:
     port: 6379
     host: localhost
     replicas: localhost:7001
+
+
