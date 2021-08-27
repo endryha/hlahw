@@ -1,2 +1,2 @@
 #!/bin/bash
-siege -c1 -t3m -f "urls.txt"
+siege -b -c1 -t3m -f "urls.txt"

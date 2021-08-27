@@ -3,5 +3,5 @@ server:
 
 spring:
   redis:
-    port: 6380
+    port: 6379
     client-type: lettuce
