@@ -7,6 +7,7 @@ import com.dinstone.beanstalkc.JobConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
 @Component
+@Profile("consumer")
 public class JobListener implements SmartLifecycle {
     private static final Logger log = LoggerFactory.getLogger(JobListener.class);
 
@@ -40,6 +42,8 @@ public class JobListener implements SmartLifecycle {
         this.properties = properties;
         executorService = Executors.newFixedThreadPool(properties.getConsumers());
         this.client = client;
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> log.info("Total processed: {}", counter.longValue())));
     }
 
     @Override
