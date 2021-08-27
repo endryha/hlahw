@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+
+  haproxy:
+    image: "haproxy:2.3"
+    ports:
+      - "6378:6378"
+    volumes:
+      - ./conf/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+
+  redis-master:
+    image: redis:alpine
+    command: redis-server --include /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./conf/redis-master.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "6379"
+
+  redis-replica-a:
+    image: redis:alpine
+    command: redis-server --include /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./conf/redis-replica.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "6379"
+
+  redis-replica-b:
+    image: redis:alpine
+    command: redis-server --include /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./conf/redis-replica.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "6379"
+
+#  app:
+#    image: docker.io/library/redis-haproxy:0.0.1-SNAPSHOT
+#    environment:
+#      - SPRING_REDIS_HOST=redis-master
+#      - SPRING_REDIS_PORT=6379
+#      - SPRING_REDIS_REPLICAS=redis-replica-a:6379,redis-replica-b:6379
+#      - _JAVA_OPTIONS=-Dlogging.level.io.lettuce=DEBUG
+#    ports:
+#      - "9080:8080"
+#    depends_on:
+#      - redis-master
+#      - redis-replica-a
+#      - redis-replica-b

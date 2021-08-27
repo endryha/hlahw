@@ -1,64 +1,48 @@
-package com.hla.redis;
+package com.hla.redis.haproxy;
 
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.ReadFrom;
-import io.lettuce.core.RedisURI;
 import io.lettuce.core.SocketOptions;
 import io.lettuce.core.TimeoutOptions;
 import io.lettuce.core.protocol.RedisCommand;
 import io.lettuce.core.resource.ClientResources;
 import io.lettuce.core.resource.DefaultClientResources;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStaticMasterReplicaConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.util.StringUtils;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-@Configuration
 @SpringBootApplication
-public class RedisSampleApplication {
-    private static final int DEFAULT_TIMEOUT_MILLIS = (int) TimeUnit.SECONDS.toMillis(3);
+public class RedisHaproxyApplication {
 
-    @Value("${spring.redis.replicas:}")
-    private String replicasProperty;
+    private static final int DEFAULT_TIMEOUT_MILLIS = (int) TimeUnit.SECONDS.toMillis(3);
 
     private final RedisProperties redisProperties;
 
-    public RedisSampleApplication(RedisProperties redisProperties) {
+    public static void main(String[] args) {
+        SpringApplication.run(RedisHaproxyApplication.class, args);
+    }
+
+    public RedisHaproxyApplication(RedisProperties redisProperties) {
         this.redisProperties = redisProperties;
     }
 
-    public static void main(String[] args) {
-        SpringApplication.run(RedisSampleApplication.class, args);
-    }
-
     @Bean
-    public StringRedisTemplate masterReplicaRedisTemplate(LettuceConnectionFactory connectionFactory) {
-        return new StringRedisTemplate(connectionFactory);
-    }
-
-    @Bean
-    public LettuceConnectionFactory masterReplicaLettuceConnectionFactory(LettuceClientConfiguration lettuceConfig) {
+    LettuceConnectionFactory lettuceConnectionFactory(LettuceClientConfiguration lettuceConfig) {
+//        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(redisProperties.getHost(), redisProperties.getPort());
         RedisStaticMasterReplicaConfiguration configuration = new RedisStaticMasterReplicaConfiguration(redisProperties.getHost(), redisProperties.getPort());
-        if (StringUtils.hasText(replicasProperty)) {
-            List<RedisURI> replicas = Arrays.stream(this.replicasProperty.split(",")).map(this::toRedisURI).collect(Collectors.toList());
-            replicas.forEach(replica -> configuration.addNode(replica.getHost(), replica.getPort()));
-        }
         LettuceConnectionFactory lettuceConnectionFactory = new LettuceConnectionFactory(configuration, lettuceConfig);
         lettuceConnectionFactory.setValidateConnection(true);
         return lettuceConnectionFactory;
@@ -75,8 +59,8 @@ public class RedisSampleApplication {
     LettuceClientConfiguration lettuceConfig(ClientResources dcr) {
         ClientOptions options = ClientOptions.builder()
                 .disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS)
-                .autoReconnect(true)
-                .pingBeforeActivateConnection(true)
+                .autoReconnect(false)
+//                .pingBeforeActivateConnection(true)
                 .timeoutOptions(TimeoutOptions.builder()
                         .timeoutSource(new TimeoutOptions.TimeoutSource() {
                             @Override
@@ -90,27 +74,18 @@ public class RedisSampleApplication {
                 .build();
 
         return LettuceClientConfiguration.builder()
-                .readFrom(ReadFrom.REPLICA_PREFERRED)
+                .readFrom(ReadFrom.MASTER)
                 .clientOptions(options)
                 .clientResources(dcr)
                 .build();
     }
 
     @Bean
-    StringRedisTemplate redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        return new StringRedisTemplate(redisConnectionFactory);
+    RedisTemplate<String, String> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, String> redisTemplate = new FailoverRedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+        return redisTemplate;
     }
-
-    private RedisURI toRedisURI(String url) {
-        String[] split = url.split(":");
-        String host = split[0];
-        int port;
-        if (split.length > 1) {
-            port = Integer.parseInt(split[1]);
-        } else {
-            port = 6379;
-        }
-        return RedisURI.create(host, port);
-    }
-
 }

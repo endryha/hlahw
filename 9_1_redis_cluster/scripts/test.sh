@@ -3,7 +3,7 @@
 host=127.0.0.1
 port=$1
 key=$2
-sleep=0.2
+sleep=1
 
 while :; do
   uuid=$(uuidgen)

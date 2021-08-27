@@ -1,0 +1,9 @@
+spring:
+  redis:
+    port: 6378
+    host: localhost
+
+logging:
+  level:
+    io:
+      lettuce: DEBUG
