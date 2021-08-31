@@ -13,8 +13,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -40,7 +44,8 @@ public class JobListener implements SmartLifecycle {
     public JobListener(BeanstalkdProperties properties, BeanstalkClientFactory clientFactory, BeanstalkClient client) {
         this.clientFactory = clientFactory;
         this.properties = properties;
-        executorService = Executors.newFixedThreadPool(properties.getConsumers());
+
+        executorService = getExecutorService(properties);
         this.client = client;
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> log.info("Total processed: {}", counter.longValue())));
@@ -103,5 +108,20 @@ public class JobListener implements SmartLifecycle {
         } catch (Exception e) {
             // ignore
         }
+    }
+
+    private static ExecutorService getExecutorService(BeanstalkdProperties properties) {
+        return new ThreadPoolExecutor(properties.getConsumers(), properties.getConsumers(),
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<>(),
+                new ThreadFactory() {
+                    private final AtomicInteger threadCounter = new AtomicInteger();
+
+                    @Override
+                    public Thread newThread(Runnable r) {
+                        return new Thread(r, JobListener.class.getSimpleName() + "-" + threadCounter.incrementAndGet());
+                    }
+                });
+//        return Executors.newFixedThreadPool(properties.getConsumers());
     }
 }
