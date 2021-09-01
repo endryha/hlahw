@@ -7,13 +7,15 @@ services:
       - ./nginx/lua:/lua
     ports:
       - "80"
+    depends_on:
+      - source
 
   cdn-balancer:
     image: nginx:latest
     volumes:
       - ./nginx/nginx-balancer.conf:/etc/nginx/nginx.conf
     ports:
-      - "8000:80"
+      - "80:80"
     depends_on:
       - cdn-node
 
