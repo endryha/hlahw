@@ -1,42 +1,10 @@
 version: '3'
 services:
-  cdn-1:
+  cdn-node:
     image: openresty/openresty:alpine-fat
     volumes:
       - ./nginx/nginx-cache.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/lua:/lua
-      #      - ./cache-1:/data/nginx/cache
-      - ./nginx/favicon.ico:/etc/nginx/html/favicon.ico
-    ports:
-      - "80"
-
-  cdn-2:
-    image: openresty/openresty:alpine-fat
-    volumes:
-      - ./nginx/nginx-cache.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/lua:/lua
-      #      - ./cache-2:/data/nginx/cache
-      - ./nginx/favicon.ico:/etc/nginx/html/favicon.ico
-    ports:
-      - "80"
-
-  cdn-3:
-    image: openresty/openresty:alpine-fat
-    volumes:
-      - ./nginx/nginx-cache.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/lua:/lua
-      #      - ./cache-3:/data/nginx/cache
-      - ./nginx/favicon.ico:/etc/nginx/html/favicon.ico
-    ports:
-      - "80"
-
-  cdn-4:
-    image: openresty/openresty:alpine-fat
-    volumes:
-      - ./nginx/nginx-cache.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/lua:/lua
-      #      - ./cache-4:/data/nginx/cache
-      - ./nginx/favicon.ico:/etc/nginx/html/favicon.ico
     ports:
       - "80"
 
@@ -47,16 +15,12 @@ services:
     ports:
       - "8000:80"
     depends_on:
-      - cdn-1
-      - cdn-2
-      - cdn-3
-      - cdn-4
+      - cdn-node
 
   source:
     image: nginx:latest
     volumes:
       - ./nginx/nginx-images.conf:/etc/nginx/nginx.conf
       - ./images:/data/images
-      - ./nginx/favicon.ico:/etc/nginx/html/favicon.ico
     ports:
       - "80"
