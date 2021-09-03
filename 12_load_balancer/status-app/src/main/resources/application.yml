@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: app-${random.uuid}
+
+management:
+  metrics:
+    enable:
+      all: true
+
+
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          filter:
+            CommonsRequestLoggingFilter: DEBUG
