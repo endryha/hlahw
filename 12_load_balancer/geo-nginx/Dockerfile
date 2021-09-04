@@ -1,6 +1,6 @@
 ARG NGINX_VERSION=1.19.2
 
-FROM nginx:$NGINX_VERSION
+FROM nginx:$NGINX_VERSION as builder
 
 ARG GEOIP2_VERSION=master
 
@@ -24,7 +24,7 @@ RUN cd /opt \
 
 FROM nginx:$NGINX_VERSION
 
-COPY --from=0 /opt/nginx/objs/ngx_http_geoip2_module.so /usr/lib/nginx/modules
+COPY --from=builder /opt/nginx/objs/ngx_http_geoip2_module.so /usr/lib/nginx/modules
 
 
 RUN apt-get update \
