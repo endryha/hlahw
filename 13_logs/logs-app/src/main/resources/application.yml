@@ -1,0 +1,9 @@
+logging:
+  level:
+    com:
+      hla:
+        logs: INFO
+#  file:
+#    path: /var/log
+#    name: app.log
+
