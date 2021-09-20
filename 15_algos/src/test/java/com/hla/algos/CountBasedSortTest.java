@@ -11,7 +11,7 @@ public class CountBasedSortTest {
     @Test
     public void testRandomArray() {
         System.out.println("Sort random arrays");
-        int inputSize = 10_000;
+        int inputSize = 20;
         long countSortTotal = 0;
         long quickSortTotal = 0;
         for (int i = 0; i < ITERATIONS; i++) {
@@ -74,7 +74,7 @@ public class CountBasedSortTest {
         Random rd = new Random();
         int[] arr = new int[n];
         for (int i = 0; i < arr.length; i++) {
-            arr[i] = Math.abs(rd.nextInt() % 10);
+            arr[i] = Math.abs(rd.nextInt() % 1000);
         }
         return arr;
     }
