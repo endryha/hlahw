@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 @RequestMapping("/superhero")
 @RestController
@@ -35,7 +37,13 @@ public class ApiController {
         SuperheroInfo superheroInfo = new SuperheroInfo();
         superheroInfo.setName(superhero.name());
         superheroInfo.setPower(superhero.power());
+        superheroInfo.setBirthdate(getBirthdate());
         return superheroInfo;
     }
 
+    private LocalDate getBirthdate() {
+        return faker.date().birthday().toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+    }
 }
