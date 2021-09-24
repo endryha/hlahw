@@ -1,0 +1,19 @@
+show tables;
+show master status;
+show slave status;
+show index from superhero;
+select * from superhero order by id desc limit 10;
+alter table superhero drop column power;
+
+./master_status.sh && ./slave_status.sh
+./exec_sql.sh "show tables"
+./exec_sql.sh "show index from superhero"
+./exec_sql.sh "select * from superhero order by id desc limit 10"
+
+ab -m POST -c 100 -n 10000  http://localhost:8080/superhero/random
+
+mysqldump --verbose --host 127.0.0.1 --port 4406 --user root --password --databases mydb --column-statistics=0 > backup.sql
+mysql -u root -p111 user -h 127.0.0.1 -P6606 < backup.sql
+
+
+FLUSH TABLES WITH READ LOCK; FLUSH LOGS; SET GLOBAL binlog_format = 'STATEMENT'; FLUSH LOGS; UNLOCK TABLES;

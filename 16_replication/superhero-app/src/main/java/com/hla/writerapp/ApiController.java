@@ -23,9 +23,9 @@ public class ApiController {
         this.repository = repository;
     }
 
-    @PostMapping
+    @PostMapping("/random")
     @Transactional
-    public ResponseEntity<?> insert() {
+    public ResponseEntity<?> saveRandom() {
         SuperheroInfo superheroInfo = newSuperhero();
         repository.save(superheroInfo);
         repository.flush();
