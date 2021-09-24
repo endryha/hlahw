@@ -9,9 +9,9 @@ services:
     ports:
       - "4406:3306"
     volumes:
-      - ./master/conf/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+      - "./master/conf/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf"
       - type: volume
-        source: master
+        source: master-sync
         target: /var/lib/mysql
     networks:
       - overlay
@@ -29,7 +29,7 @@ services:
     volumes:
       - ./slave_1/conf/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
       - type: volume
-        source: slave_1
+        source: slave_1-sync
         target: /var/lib/mysql
     networks:
       - overlay
@@ -47,7 +47,7 @@ services:
     volumes:
       - ./slave_2/conf/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
       - type: volume
-        source: slave_2
+        source: slave_2-sync
         target: /var/lib/mysql
     networks:
       - overlay
@@ -56,6 +56,8 @@ services:
     image: docker.io/library/superhero-app:0.0.1-SNAPSHOT
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql_master:3306/mydb
+    depends_on:
+      - mysql_master
     ports:
       - "8080:8080"
     networks:
@@ -65,6 +67,9 @@ networks:
   overlay:
 
 volumes:
-  master:
-  slave_1:
-  slave_2:
+  master-sync:
+    external: true
+  slave_1-sync:
+    external: true
+  slave_2-sync:
+    external: true

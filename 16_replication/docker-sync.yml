@@ -1,0 +1,10 @@
+version: "2"
+options:
+  verbose: true
+syncs:
+  master-sync:
+    src: './master/data'
+  slave_1-sync:
+    src: './slave_1/data'
+  slave_2-sync:
+    src: './slave_2/data'
