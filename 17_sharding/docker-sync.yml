@@ -1,0 +1,10 @@
+version: "2"
+options:
+  verbose: true
+syncs:
+  shard_1-sync:
+    src: './main/data'
+  shard_2-sync:
+    src: './shard_1/data'
+  shard_3-sync:
+    src: './shard_2/data'
