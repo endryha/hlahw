@@ -1,11 +1,12 @@
+CREATE SEQUENCE books_seq START 1;
+
 CREATE TABLE books
 (
     id          bigint            not null,
     category_id int               not null,
     author      character varying not null,
     title       character varying not null,
-    year        int               not null,
-    CONSTRAINT category_id_check CHECK ( category_id = 2)
+    year        int               not null
 );
 
 CREATE INDEX idx_category ON books USING btree (category_id);

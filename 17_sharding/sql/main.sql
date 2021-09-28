@@ -1,3 +1,33 @@
+-- Create tables on the main server
+CREATE SEQUENCE books_seq START 1;
+
+CREATE TABLE books_1
+(
+    id          bigint            not null,
+    category_id int               not null,
+    author      character varying not null,
+    title       character varying not null,
+    year        int               not null,
+    CONSTRAINT category_id_check CHECK ( category_id = 1 )
+);
+
+CREATE INDEX idx_category ON books_1 USING btree (category_id);
+CREATE INDEX idx_author ON books_1 USING btree (author);
+CREATE INDEX idx_year ON books_1 USING btree (year);
+
+CREATE TABLE books_others
+(
+    id          bigint            not null,
+    category_id int               not null,
+    author      character varying not null,
+    title       character varying not null,
+    year        int               not null
+);
+
+CREATE INDEX idx_category_others ON books_others USING btree (category_id);
+CREATE INDEX idx_author_others ON books_others USING btree (author);
+CREATE INDEX idx_year_others ON books_others USING btree (year);
+
 -- enabled FDW extension
 CREATE
 EXTENSION postgres_fdw;
@@ -19,31 +49,7 @@ USER MAPPING FOR postgres SERVER shard_1 OPTIONS (user 'postgres', password 'pos
 CREATE
 USER MAPPING FOR postgres SERVER shard_2 OPTIONS (user 'postgres', password 'postgres');
 
-CREATE TABLE books_1
-(
-    id          bigint            not null,
-    category_id int               not null,
-    author      character varying not null,
-    title       character varying not null,
-    year        int               not null,
-    CONSTRAINT category_id_check CHECK ( category_id = 1 )
-);
-
-CREATE INDEX idx_author ON books_1 USING btree (author);
-CREATE INDEX idx_year ON books_1 USING btree (year DESC NULLS LAST);
-
-CREATE TABLE books_others
-(
-    id          bigint            not null,
-    category_id int               not null,
-    author      character varying not null,
-    title       character varying not null,
-    year        int               not null
-);
-
-CREATE INDEX idx_author_others ON books_others USING btree (author);
-CREATE INDEX idx_year_others ON books_others USING btree (year DESC NULLS LAST);
-
+-- Create foreign tables
 CREATE
 FOREIGN TABLE books_2
 (
@@ -69,11 +75,14 @@ SERVER shard_2
 OPTIONS (schema_name 'public', table_name 'books');
 
 CREATE VIEW books AS
-SELECT * FROM books_1
+SELECT *
+FROM books_1
 UNION ALL
-SELECT * FROM books_2
+SELECT *
+FROM books_2
 UNION ALL
-SELECT * FROM books_3;
+SELECT *
+FROM books_3;
 
 -- Empty rules by default
 CREATE
@@ -109,6 +118,7 @@ RULE books_insert_to_3 AS ON INSERT TO books
 WHERE ( category_id = 3 )
 DO INSTEAD INSERT INTO books_3 VALUES (NEW.*);
 
+-- Unexpected category rule
 CREATE
 RULE books_insert_to_others AS ON INSERT TO books
 WHERE ( category_id < 1 or category_id > 3 )

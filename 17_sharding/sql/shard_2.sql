@@ -8,5 +8,6 @@ CREATE TABLE books
     CONSTRAINT category_id_check CHECK ( category_id = 3)
 );
 
+CREATE INDEX idx_category ON books USING btree (category_id);
 CREATE INDEX idx_author ON books USING btree (author);
-CREATE INDEX idx_year ON books USING btree (year DESC NULLS LAST);
+CREATE INDEX idx_year ON books USING btree (year);

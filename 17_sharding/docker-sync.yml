@@ -2,9 +2,9 @@ version: "2"
 options:
   verbose: true
 syncs:
-  shard_1-sync:
+  vol-main:
     src: './main/data'
-  shard_2-sync:
+  vol-shard_1:
     src: './shard_1/data'
-  shard_3-sync:
+  vol-shard_2:
     src: './shard_2/data'
