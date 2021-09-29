@@ -61,3 +61,13 @@ volumes:
   vol-shard_1:
   vol-shard_2:
   vol-standalone:
+
+#volumes:
+#  vol-main:
+#    external: true
+#  vol-shard_1:
+#    external: true
+#  vol-shard_2:
+#    external: true
+#  vol-standalone:
+#    external: true

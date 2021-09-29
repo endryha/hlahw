@@ -1,6 +1,8 @@
-rm -rf ./shard_1/data/*
-rm -rf ./shard_2/data/*
-rm -rf ./shard_3/data/*
+#!/bin/bash
+rm -rf ./volumes/main/*
+rm -rf ./volumes/shard_1/*
+rm -rf ./volumes/shard_2/*
+rm -rf ./volumes/standalone/*
 
 docker-sync stop
 docker-sync clean

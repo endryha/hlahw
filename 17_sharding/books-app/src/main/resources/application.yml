@@ -1,0 +1,14 @@
+server:
+  port: 80
+  tomcat:
+    accept-count: 256
+    threads:
+      max: 256
+
+spring:
+  datasource:
+#    url: jdbc:postgresql://localhost:5432/hla
+    url: jdbc:postgresql://localhost:8432/hla
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver

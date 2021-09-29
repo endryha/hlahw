@@ -3,8 +3,10 @@ options:
   verbose: true
 syncs:
   vol-main:
-    src: './main/data'
+    src: './volumes/main'
   vol-shard_1:
-    src: './shard_1/data'
+    src: './volumes/shard_1'
   vol-shard_2:
-    src: './shard_2/data'
+    src: './volumes/shard_2'
+  vol-standalone:
+    src: './volumes/standalone'
