@@ -1,0 +1,8 @@
+version: "2"
+options:
+  verbose: true
+syncs:
+  vol-db:
+    src: './data'
+  vol-backup-wal:
+    src: './backups/wal'

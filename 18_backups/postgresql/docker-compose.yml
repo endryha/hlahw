@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  db:
+    image: postgres:13
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    env_file:
+      - ./conf/db.env
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./conf/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./conf/schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./scripts/test.sh:/docker-entrypoint-initdb.d/test.sh:ro
+      - vol-db:/var/lib/postgresql/data/
+      - vol-backup-wal:/backup
+
+  adminer:
+    image: adminer
+    restart: always
+    links:
+      - db
+    ports:
+      - "8080:8080"
+
+volumes:
+  vol-db:
+    external: true
+  vol-backup-wal:
+    external: true
+
+#networks:
+#  default:
+#    external:
+#      name: postgres-backups-net
