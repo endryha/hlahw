@@ -2,7 +2,9 @@ version: "2"
 options:
   verbose: true
 syncs:
-  vol-db:
-    src: './data'
+  vol-master-db:
+    src: './data/master'
+  vol-slave-db:
+    src: './data/slave'
   vol-backup-wal:
     src: './backups/wal'

@@ -1,6 +1,5 @@
 #!/bin/bash
-set -e
-set -x
+#set -e
+#set -x
 
-echo "whoami"
-whoami
+echo "Current process user is $(whoami)"
