@@ -15,6 +15,11 @@ apt-get update && \
 apt-get -y install docker-ce
 RUN apt-get install -y docker-ce
 RUN usermod -a -G docker jenkins
+
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 USER jenkins
 ENV JAVA_OPTS="-Djenkins.install.runSetupWizard=false"
 ENV JENKINS_USER admin
@@ -24,3 +29,5 @@ COPY plugins.txt /usr/share/jenkins/ref/
 # COPY security.groovy /usr/share/jenkins/ref/init.groovy.d/
 COPY default-user.groovy /usr/share/jenkins/ref/init.groovy.d/
 RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
+
+ENTRYPOINT ["/entrypoint.sh"]
