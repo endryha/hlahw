@@ -2,6 +2,7 @@ version: '3.7'
 services:
   jenkins:
     build: ./debian
+    container_name: myjenkins
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
       - JENKINS_USER=admin
@@ -11,6 +12,9 @@ services:
       - "443:8443"
       - "50000:50000"
     volumes:
-#      - "/Users/Shared/Docker/jenkins_home:/var/jenkins_home"
-      - "/Users/Shared/Docker/jenkins_home_deb:/var/jenkins_home"
+#      - "/Users/Shared/Docker/jenkins_home_deb:/var/jenkins_home"
+      - "jenkins_home:/var/jenkins_home"
       - "/var/run/docker.sock:/var/run/docker.sock"
+
+volumes:
+  jenkins_home:
