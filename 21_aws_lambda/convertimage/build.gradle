@@ -7,6 +7,9 @@ version '1.0'
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://repository.aspose.com/repo/"
+    }
 }
 
 dependencies {
@@ -21,6 +24,8 @@ dependencies {
     implementation 'org.apache.logging.log4j:log4j-api:2.13.0'
     implementation 'org.apache.logging.log4j:log4j-core:2.13.0'
     implementation 'org.apache.logging.log4j:log4j-slf4j18-impl:2.13.0'
+    implementation 'com.aspose:aspose-imaging:21.10:jdk16'
+
     runtimeOnly 'com.amazonaws:aws-lambda-java-log4j2:1.2.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'

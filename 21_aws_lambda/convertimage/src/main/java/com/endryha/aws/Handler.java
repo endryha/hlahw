@@ -10,29 +10,42 @@ import com.amazonaws.services.s3.event.S3EventNotification.S3EventNotificationRe
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import com.aspose.imaging.Image;
+import com.aspose.imaging.ImageOptionsBase;
+import com.aspose.imaging.imageoptions.BmpOptions;
+import com.aspose.imaging.imageoptions.GifOptions;
+import com.aspose.imaging.imageoptions.JpegOptions;
+import com.aspose.imaging.imageoptions.PdfOptions;
+import com.aspose.imaging.imageoptions.PngOptions;
 import com.endryha.aws.exception.ConvertImageException;
+import com.endryha.aws.image.ImageType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.EnumMap;
+import java.util.Map;
 
 // Handler value: example.Handler
 public class Handler implements RequestHandler<S3Event, String> {
     private static final Logger logger = LoggerFactory.getLogger(Handler.class);
 
-    private static final String JPG_TYPE = "jpg";
-    private static final String JPG_MIME = "image/jpeg";
-    private static final String PNG_TYPE = "png";
-    private static final String PNG_MIME = "image/png";
-
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+    private static final Map<ImageType, ImageOptionsBase> IMAGE_OPTIONS = new EnumMap<>(ImageType.class);
+
+    static {
+        IMAGE_OPTIONS.put(ImageType.JPG, new JpegOptions());
+        IMAGE_OPTIONS.put(ImageType.PNG, new PngOptions());
+        IMAGE_OPTIONS.put(ImageType.BMP, new BmpOptions());
+        IMAGE_OPTIONS.put(ImageType.GIF, new GifOptions());
+        IMAGE_OPTIONS.put(ImageType.PDF, new PdfOptions());
+    }
 
     @Override
     public String handleRequest(S3Event s3event, Context context) {
@@ -42,59 +55,56 @@ public class Handler implements RequestHandler<S3Event, String> {
             }
 
             S3EventNotificationRecord s3Record = s3event.getRecords().get(0);
-
-            // Object key may have spaces or unicode non-ASCII characters.
             String srcKey = s3Record.getS3().getObject().getUrlDecodedKey();
-            String imageType = Utils.getExtension(srcKey);
-
-            if (!JPG_TYPE.equals(imageType)) {
-                logger.info("Skipping non jpg file {}", srcKey);
-                return "";
-            }
 
             // Download the image from S3 into a stream
             AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
             String srcBucket = s3Record.getS3().getBucket().getName();
             S3Object s3Object = s3Client.getObject(new GetObjectRequest(srcBucket, srcKey));
-            InputStream objectData = s3Object.getObjectContent();
 
-            // Read the source image
-            BufferedImage srcImage = ImageIO.read(objectData);
+            try (InputStream objectData = s3Object.getObjectContent()) {
+                Image srcImage = Image.load(objectData);
 
-            saveAs(srcBucket, srcKey, srcImage, PNG_TYPE, PNG_MIME);
+                IMAGE_OPTIONS.forEach((type, options) -> {
+                    String dstKey = buildDestinationKey(srcKey, type);
 
+                    ByteArrayOutputStream os = new ByteArrayOutputStream();
+                    srcImage.save(os, options);
+                    InputStream is = new ByteArrayInputStream(os.toByteArray());
+
+                    ObjectMetadata meta = new ObjectMetadata();
+                    meta.setContentLength(os.size());
+                    meta.setContentType(type.getMimeType());
+                    meta.addUserMetadata("Generated", Boolean.TRUE.toString());
+
+                    // Uploading to S3 destination bucket
+                    if (upload(srcBucket, dstKey, is, meta)) {
+                        logger.info("Successfully converted {}/{} and uploaded to {}/{}", srcBucket, srcKey, srcBucket, dstKey);
+                    } else {
+                        logger.info("Failed to convert {}/{} into {}/{}", srcBucket, srcKey, srcBucket, dstKey);
+                    }
+                });
+            }
             return "Ok";
         } catch (IOException e) {
             throw new ConvertImageException(e);
         }
     }
 
-    private void saveAs(String bucket, String srcKey, BufferedImage srcImage, String imgType, String mimeType) throws IOException {
-        // Re-encode image to target format
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        ImageIO.write(srcImage, imgType, os);
-        InputStream is = new ByteArrayInputStream(os.toByteArray());
-
-        // Set Content-Length and Content-Type
-        ObjectMetadata meta = new ObjectMetadata();
-        meta.setContentLength(os.size());
-        meta.setContentType(mimeType);
-
-
-        String fileName = Utils.getFileName(srcKey);
-        fileName = fileName.substring(0, fileName.indexOf("."));
-
-
-        String dstKey = imgType + "/" + fileName + "." + imgType;
-        // Uploading to S3 destination bucket
+    private static boolean upload(String bucket, String dstKey, InputStream is, ObjectMetadata meta) {
         logger.info("Writing to: {} / {}", bucket, dstKey);
         try {
             AmazonS3ClientBuilder.defaultClient().putObject(bucket, dstKey, is, meta);
+            return true;
         } catch (AmazonServiceException e) {
             logger.error(e.getErrorMessage());
-            System.exit(1);
+            return false;
         }
-        logger.info("Successfully converted {}/{} and uploaded to {}/{}", bucket, srcKey, bucket, dstKey);
+    }
 
+    private static String buildDestinationKey(String srcKey, ImageType type) {
+        String fileName = Utils.getFileName(srcKey);
+        fileName = fileName.substring(0, fileName.indexOf("."));
+        return type.getType() + "/" + fileName + "." + type.getType();
     }
 }
