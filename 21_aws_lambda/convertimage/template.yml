@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: An AWS Lambda application that convertes images in S3
+Resources:
+  bucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: convertimage
+  function:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: build/distributions/convertimage-1.0.zip
+      Handler: com.endryha.aws.Handler
+      Runtime: java8
+      Description: Java function
+      MemorySize: 1024
+      Timeout: 30
+      # Function's execution role
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambda_ReadOnlyAccess
+        - AWSXrayWriteOnlyAccess
+        - AWSLambdaVPCAccessExecutionRole
+        - AmazonS3FullAccess
+      Tracing: Active
+      Layers:
+        - !Ref libs
+      Events:
+        s3Notification:
+          Type: S3
+          Properties:
+            Bucket: !Ref bucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                - Name: prefix
+                  Value: jpg/
+  libs:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: convertImageLib
+      Description: Dependencies for the Convert Image S3 app.
+      ContentUri: build/convertImageLib.zip
+      CompatibleRuntimes:
+        - java8

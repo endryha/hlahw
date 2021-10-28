@@ -1,2 +1,6 @@
 .DS_Store
 .idea
+**/bucket-name.txt
+**/build
+**/.gradle
+**/out.yml
