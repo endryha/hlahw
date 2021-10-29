@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+#set -eo pipefail
 
 STACK=convertimage-java
 ARTIFACT_BUCKET=convertimage-artifacts
@@ -16,20 +16,16 @@ echo "Artifacts bucket: $ARTIFACT_BUCKET"
 echo "App Bucket: $APP_BUCKET"
 echo "Lambda: $FUNCTION"
 
+aws logs delete-log-group --log-group-name /aws/lambda/$FUNCTION;
+
+aws s3 rm --recursive s3://$APP_BUCKET
+aws s3 rb --force s3://$APP_BUCKET;
+
 aws cloudformation delete-stack --stack-name "$STACK"
 echo "Deleted $STACK stack."
 
 while true; do
-    read -p "Delete application bucket ($APP_BUCKET)? (y/n)" response
-    case $response in
-        [Yy]* ) aws s3 rb --force s3://$APP_BUCKET; break;;
-        [Nn]* ) break;;
-        * ) echo "Response must start with y or n.";;
-    esac
-done
-
-while true; do
-    read -p "Delete bucket ($ARTIFACT_BUCKET)? (y/n)" response
+    read -p "Delete artifacts bucket ($ARTIFACT_BUCKET)? (y/n)" response
     case $response in
         [Yy]* ) aws s3 rb --force s3://$ARTIFACT_BUCKET; break;;
         [Nn]* ) break;;

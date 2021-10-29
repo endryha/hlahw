@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
-Description: An AWS Lambda application that convertes images in S3
+Description: An AWS Lambda application that convertes jpg images to multiple different formats ans stores in S3
 Resources:
   bucket:
     Type: AWS::S3::Bucket
@@ -16,7 +16,6 @@ Resources:
       Description: Java function
       MemorySize: 512
       Timeout: 30
-      # Function's execution role
       Policies:
         - AWSLambdaBasicExecutionRole
         - AWSLambda_ReadOnlyAccess
