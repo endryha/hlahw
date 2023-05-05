@@ -1,4 +1,4 @@
-FROM nginx:latest
+FROM nginx:1-bullseye
 
 RUN apt-get -y update && apt-get -y upgrade && \
    DEBIAN_FRONTEND=noninteractive apt-get install -y \
